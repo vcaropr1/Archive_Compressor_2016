@@ -13,10 +13,7 @@ COMPRESS_AND_INDEX_VCF(){
 
 ####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION(){
-	# Remove Tags
-	# echo qsub -N BAM_TO_CRAM_CONVERSION_$BASENAME -j y -o /isilon/sequencing/VITO/Junk_2/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE
-
-	#Remove Tags + 8-bin Quality Score (RND Projects)
+	#Remove Tags + 5-bin Quality Score (RND Projects)
 	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE
 }
 
@@ -30,12 +27,10 @@ CRAM_VALIDATOR(){
 	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE
 }
 
-# NEED TO WORK ON ....Common ERROR:INVALID_TAG_NM in Bam validations.
-# VALIDATOR_COMPARER(){
-#	echo qsub -N VALIDATOR_COMPARE_$FILE -hold_jid "BAM_VALIDATOR_"$FILE","CRAM_VALIDATOR_$FILE -o /isilon/sequencing/VITO/Junk_2/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
-#	echo $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
-#	$SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
-# }
+####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
+VALIDATOR_COMPARER(){
+	echo qsub -N VALIDATOR_COMPARE_$FILE -hold_jid BAM_VALIDATOR_$UNIQUE_ID,CRAM_VALIDATOR_$UNIQUE_ID -o $DIR_TO_PARSE/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
+}
 
 ####Zips and md5s text and csv files####
 ZIP_TEXT_AND_CSV_FILE(){
@@ -67,7 +62,7 @@ elif [[ $FILE == *".bam" ]]; then
 	BAM_TO_CRAM_CONVERSION
 	BAM_VALIDATOR
 	CRAM_VALIDATOR
-#	VALIDATOR_COMPARER
+	VALIDATOR_COMPARER
 
 
 elif [[ $FILE == *".txt" ]]; then

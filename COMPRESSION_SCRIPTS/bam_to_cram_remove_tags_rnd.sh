@@ -5,7 +5,7 @@
 #$ -S /bin/bash
 
 # tell sge to submit any of these queue when available
-#$ -q rnd.q
+#$ -q rnd.q,prod.q,test.q
 
 # tell sge that you are in the users current working directory
 #$ -cwd
@@ -70,7 +70,7 @@ $JAVA_1_7/java -jar $GATK_DIR/GenomeAnalysisTK.jar \
 
 # START_CRAM=`date '+%s'`
 
-$SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME
+$SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
 
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai

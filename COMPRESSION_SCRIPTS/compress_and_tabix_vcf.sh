@@ -42,6 +42,10 @@ echo $(zcat $IN_VCF".gz" | md5sum | awk '{print $1}') $IN_VCF".gz" >> $DIR_TO_PA
 echo $(md5sum $IN_VCF".gz.tbi") >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
 md5sum $IN_VCF >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
 
+#TODO: MD5sum vcf index to compare in md5_check?
+
+rm -f $IN_VCF".idx"
+
 END_COMPRESS_VCF=`date '+%s'`
 
 echo $IN_VCF,COMPRESS_AND_INDEX_VCF,$START_COMPRESS_VCF,$END_COMPRESS_VCF \

@@ -37,7 +37,7 @@ SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
 # For further information: http://www.htslib.org/doc/samtools.html
 
 # Use samtools-1.3.1 devel to convert a bam file to a cram file with no error
- $SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME
+ $SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
