@@ -22,15 +22,17 @@
 # export all variables, useful to find out what compute node the program was executed on
 # redirecting stderr/stdout to file as a log.
 
+# Reference genome used for creating BAM file. Needs to be indexed with samtools faidx (would have ref.fasta.fai companion file)
 set
 
 IN_BAM=$1
 DIR_TO_PARSE=$2
+REF_GENOME=$3
+
 BAM_DIR=$(dirname $IN_BAM)
 BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
 CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
 GATK_DIR=/isilon/sequencing/CIDRSeqSuiteSoftware/gatk/GATK_3/GenomeAnalysisTK-3.5-0
-REF_GENOME=/isilon/sequencing/GATK_resource_bundle/bwa_mem_0.7.5a_ref/human_g1k_v37_decoy.fasta # Reference genome used for creating BAM file. Needs to be indexed with samtools faidx (would have ref.fasta.fai companion file)
 JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
 SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
 SM_TAG=$(basename $IN_BAM .bam) 

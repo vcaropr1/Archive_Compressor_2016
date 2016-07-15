@@ -3,6 +3,8 @@
 module load sge
 
 DIR_TO_PARSE=$1
+REF_GENOME=$2
+
 SCRIPT_REPO=/isilon/sequencing/VITO/GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
 
 ####Uses bgzip to compress vcf file and tabix to index.  Also, creates md5 values for both####
@@ -14,7 +16,7 @@ COMPRESS_AND_INDEX_VCF(){
 ####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION(){
 	# Remove Tags
-	echo qsub -N BAM_TO_CRAM_CONVERSION_$BASENAME -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE
+	echo qsub -N BAM_TO_CRAM_CONVERSION_$BASENAME -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE $DIR_TO_PARSE $REF_GENOME
 }
 
 ####Uses ValidateSam to report any errors found within the original BAM file####
@@ -29,7 +31,7 @@ CRAM_VALIDATOR(){
 
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$FILE -hold_jid BAM_VALIDATOR_$UNIQUE_ID,CRAM_VALIDATOR_$UNIQUE_ID -o $DIR_TO_PARSE/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
+	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid BAM_VALIDATOR_$UNIQUE_ID,CRAM_VALIDATOR_$UNIQUE_ID -o $DIR_TO_PARSE/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
 }
 
 ####Zips and md5s text and csv files####

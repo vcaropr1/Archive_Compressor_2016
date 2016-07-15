@@ -34,7 +34,7 @@ START_COMPRESS_VCF=`date '+%s'`
 TABIX_EXEC=/isilon/sequencing/Kurt/Programs/TABIX/tabix-0.2.6/tabix
 BGZIP_EXEC=/isilon/sequencing/Kurt/Programs/TABIX/tabix-0.2.6/bgzip
 
-$BGZIP_EXEC -c $IN_VCF > $IN_VCF.gz && $TABIX_EXEC/tabix -h $IN_VCF.gz
+$BGZIP_EXEC -c $IN_VCF > $IN_VCF.gz && $TABIX_EXEC -h $IN_VCF.gz
 
 
 #######Make an if statement in md5_check to see if vcf file.  If it is then md5sum both the file and tbi....###########

@@ -3,6 +3,8 @@
 module load sge
 
 DIR_TO_PARSE=$1
+REF_GENOME=$2
+
 SCRIPT_REPO=/isilon/sequencing/VITO/GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
 
 ####Uses bgzip to compress vcf file and tabix to index.  Also, creates md5 values for both####
@@ -14,7 +16,7 @@ COMPRESS_AND_INDEX_VCF(){
 ####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION(){
 	#Remove Tags + 5-bin Quality Score (RND Projects)
-	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE
+	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE $REF_GENOME
 }
 
 ####Uses ValidateSam to report any errors found within the original BAM file####

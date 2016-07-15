@@ -22,10 +22,13 @@
 # export all variables, useful to find out what compute node the program was executed on
 # redirecting stderr/stdout to file as a log.
 
+# Reference genome used for creating BAM file. Needs to be indexed with samtools faidx (would have ref.fasta.fai companion file)
+
 IN_BAM=$1
+DIR_TO_PARSE=$2
+REF_GENOME=$3
 BAM_DIR=$(dirname $IN_BAM)
 CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
-REF_GENOME=/isilon/sequencing/GATK_resource_bundle/bwa_mem_0.7.5a_ref/human_g1k_v37_decoy.fasta # Reference genome used for creating BAM file. Needs to be indexed with samtools faidx (would have ref.fasta.fai companion file)
 SM_TAG=$(basename $IN_BAM .bam) 
 BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print $1}')
 
@@ -49,5 +52,5 @@ END_CRAM=`date '+%s'`
 md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 md5sum $CRAM_DIR/$SM_TAG".cram.crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 
- echo $IN_BAM,CRAM,$BAM_FILE_SIZE,$CRAM_FILE_SIZE,$START_CRAM,$END_CRAM \
- >> /isilon/sequencing/VITO/cram_compression_times.csv
+echo $IN_BAM,CRAM,$BAM_FILE_SIZE,$CRAM_FILE_SIZE,$START_CRAM,$END_CRAM \
+>> $DIR_TO_PARSE/cram_compression_times.csv
