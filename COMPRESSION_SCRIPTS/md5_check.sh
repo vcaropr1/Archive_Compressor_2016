@@ -32,7 +32,6 @@ ZIPPED_MD5=$(zcat $FILE".gz" | md5sum | awk '{print $1}')
 if [[ $ORIGINAL_MD5 = $ZIPPED_MD5 ]]; then
 	echo $FILE compressed successfully >> $DIR_TO_PARSE/compression_jobs.list
 	rm -f $FILE
-#	mv $FILE $DIR_TO_PARSE/TEMP/
 else
 	echo $FILE did not compress successfully >> $DIR_TO_PARSE/compression_jobs.list
 fi

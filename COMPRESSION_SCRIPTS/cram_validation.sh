@@ -30,7 +30,6 @@ SM_TAG=$(basename $IN_BAM .bam)
 CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 
 PICARD_DIR="/isilon/sequencing/VITO/Programs/picard/picard-tools-1.141/"
-REF_GENOME="/isilon/sequencing/VITO/DATA_FILES/human_g1k_v37_decoy.fasta"
 
 mkdir -p $MAIN_DIR/CRAM_CONVERSION_VALIDATION/
 
@@ -41,7 +40,6 @@ java -jar $PICARD_DIR/picard.jar \
 ValidateSamFile \
 INPUT= $CRAM_DIR/$SM_TAG".cram" \
 OUTPUT= $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram.txt" \
-REFERENCE_SEQUENCE=$REF_GENOME \
 MODE=SUMMARY \
 
 END_CRAM_VALIDATION=`date '+%s'`

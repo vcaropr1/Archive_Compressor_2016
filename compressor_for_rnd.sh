@@ -6,6 +6,12 @@ DIR_TO_PARSE=$1
 REF_GENOME=$2
 
 SCRIPT_REPO=/isilon/sequencing/VITO/GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
+DEFAULT_REF_GENOME=/isilon/sequencing/GATK_resource_bundle/1.5/b37/human_g1k_v37_decoy.fasta
+
+if [[ ! $REF_GENOME ]]
+	then
+	REF_GENOME=$DEFAULT_REF_GENOME
+fi
 
 ####Uses bgzip to compress vcf file and tabix to index.  Also, creates md5 values for both####
 COMPRESS_AND_INDEX_VCF(){
@@ -29,9 +35,13 @@ CRAM_VALIDATOR(){
 	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE
 }
 
+BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST(){
+	VALIDATOR_COMPARER_HOLD_ID=$VALIDATOR_COMPARER_HOLD_ID"BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID","
+}
+
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$FILE -hold_jid BAM_VALIDATOR_$UNIQUE_ID,CRAM_VALIDATOR_$UNIQUE_ID -o $DIR_TO_PARSE/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
+	echo qsub -N VALIDATOR_COMPARE_$PROJECT_NAME -hold_jid BAM_VALIDATOR_$UNIQUE_ID,CRAM_VALIDATOR_$UNIQUE_ID -o $DIR_TO_PARSE/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
 }
 
 ####Zips and md5s text and csv files####
@@ -43,6 +53,8 @@ ZIP_TEXT_AND_CSV_FILE(){
 MD5_CHECK(){
 	echo qsub -N MD5_CHECK_$UNIQUE_ID -hold_jid COMPRESS_$UNIQUE_ID  -j y -o $DIR_TO_PARSE/LOGS/MD5_CHECK$BASENAME.log $SCRIPT_REPO/md5_check.sh $FILE $DIR_TO_PARSE
 }
+
+PROJECT_NAME=$(basename $DIR_TO_PARSE)
 
 mkdir -p $DIR_TO_PARSE/MD5_REPORTS/
 mkdir -p $DIR_TO_PARSE/LOGS
@@ -64,13 +76,11 @@ elif [[ $FILE == *".bam" ]]; then
 	BAM_TO_CRAM_CONVERSION
 	BAM_VALIDATOR
 	CRAM_VALIDATOR
-	VALIDATOR_COMPARER
-
+	BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST
 
 elif [[ $FILE == *".txt" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
-	MD5_CHECK
-	
+	MD5_CHECK	
 
 elif [[ $FILE == *".csv" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
@@ -81,3 +91,6 @@ else
 
 fi
 done
+
+VALIDATOR_COMPARER
+
