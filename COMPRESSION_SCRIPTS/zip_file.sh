@@ -39,4 +39,4 @@ echo $(md5sum $FILE | awk '{print $1}') $IN_FILE >> $DIR_TO_PARSE/MD5_REPORTS/or
 END_ZIP=`date '+%s'`
 
  echo $IN_FILE,ZIP,$START_ZIP,$END_ZIP \
- >> /isilon/sequencing/VITO/COMPRESSOR.TEST.WALL.CLOCK.TIMES.csv
+ >> $DIR_TO_PARSE/COMPRESSOR.TEST.WALL.CLOCK.TIMES.csv

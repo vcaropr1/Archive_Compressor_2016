@@ -30,3 +30,6 @@ do
 	FILE=$(basename $f _cram.txt)
 	grep "^ERROR" $f | awk '{OFS="\t"}{print "'$FILE'",$0}' >> $MAIN_DIR/cram_files_potentially_corrupted.list
 done
+
+echo $CRAM_DIR/$SM_TAG".cram",BAM_CRAM_VALIDATION_COMPARE,$START_CRAM_VALIDATION,$END_CRAM_VALIDATION \
+>> $MAIN_DIR/COMPRESSOR.TEST.WALL.CLOCK.TIMES.csv
