@@ -19,6 +19,12 @@
 # tell sge to output both stderr and stdout to the same file
 #$ -j y
 
+# TEST TO SEE IF EMAIL IS SENT IF JOB IS SUSPENDED OR ABORTED
+#$ -m a
+
+# TEST TO SEE IF EMAIL COMES TO ME
+#$ -M vcaropr1@cidr.jhmi.edu
+
 # export all variables, useful to find out what compute node the program was executed on
 # redirecting stderr/stdout to file as a log.
 
@@ -38,15 +44,15 @@ SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
 SM_TAG=$(basename $IN_BAM .bam) 
 BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print $1}')
 
-START_CRAM=`date '+%s'`
-# START_BINNED_BAM=`date '+%s'`
-
 #BQSR path and files seem to very slightly... Also some files have been ran mutliple times.  This pulls the directory above the BAM folder to search from and sort the output in directory structure to take the top one
-BQSR_FILE=$(find $BAM_MAIN_DIR -depth -name $SM_TAG".bqsr" -or -name  ${SM_TAG}*_P*.bqsr | head -n1)
+BQSR_FILE=$(find $BAM_MAIN_DIR -depth -name $SM_TAG".bqsr" -or -name  ${SM_TAG}*P*.bqsr | head -n1)
 
 mkdir -p $CRAM_DIR
 mkdir -p $DIR_TO_PARSE/TEMP
 
+START_CRAM=`date '+%s'`
+
+BIN_QUALITY_SCORES_REMOVE_TAGS_AND_CRAM(){
 $JAVA_1_7/java -jar $GATK_DIR/GenomeAnalysisTK.jar \
 -T PrintReads \
 -R $REF_GENOME \
@@ -61,29 +67,35 @@ $JAVA_1_7/java -jar $GATK_DIR/GenomeAnalysisTK.jar \
 -nct 6 \
 -o $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
 
-# -o /dev/stdout \
-# | $SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME
-
-# BINNED_BAM_FILE_SIZE=$(du -a $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" | awk '{print $1}')
-# END_BINNED_BAM=`date '+%s'`
-
-# echo $IN_BAM,BINNED_BAM,$BAM_FILE_SIZE,$BINNED_BAM_FILE_SIZE,$START_BINNED_BAM,$END_BINNED_BAM \
-# >> /isilon/sequencing/VITO/cram_compression_times.csv
-
-# START_CRAM=`date '+%s'`
-
 $SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
-
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
 
-CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print $1}')
+rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
+rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bai"
+}
 
-END_CRAM=`date '+%s'`
+REMOVE_TAGS_AND_CRAM_NO_BQSR(){
+$SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
+
+# Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
+$SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
+}
+
+if [[ ! $BQSR_FILE ]]
+	then
+	REMOVE_TAGS_AND_CRAM_NO_BQSR
+else
+	BIN_QUALITY_SCORES_REMOVE_TAGS_AND_CRAM
+fi
+
+CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print $1}')
 
 md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 md5sum $CRAM_DIR/$SM_TAG".cram.crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+
+END_CRAM=`date '+%s'`
 
 echo $IN_BAM,CRAM,$BAM_FILE_SIZE,$CRAM_FILE_SIZE,$START_CRAM,$END_CRAM \
 >> $DIR_TO_PARSE/cram_compression_times.csv

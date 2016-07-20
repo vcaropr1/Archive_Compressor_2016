@@ -33,7 +33,7 @@ BAM_VALIDATOR(){
 
 ####Uses ValidateSam to report any errors found within the cram files####
 CRAM_VALIDATOR(){
-	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE
+	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE $REF_GENOME
 }
 
 BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST(){
@@ -64,7 +64,7 @@ mkdir -p $DIR_TO_PARSE/CRAM_CONVERSION_VALIDATION/
 mkdir -p $DIR_TO_PARSE/BAM_CONVERSION_VALIDATION/
 
 # Pass variable (vcf/txt/cram) file path to function and call $FILE within function#
-for FILE in $(du -a $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$|bam$' | awk '{FS="\t"} {print $2}')
+for FILE in $(find $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$|bam$')
 do
 BASENAME=$(basename $FILE)
 UNIQUE_ID=$(echo $BASENAME | sed 's/@/_/g') # If there is an @ in the qsub or holdId name it breaks

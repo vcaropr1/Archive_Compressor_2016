@@ -23,9 +23,8 @@
 # redirecting stderr/stdout to file as a log.
 
 MAIN_DIR=$1
-VALIDATION_DIR=$MAIN_DIR/CRAM_CONVERSION_VALIDATION/
 
-for f in /isilon/sequencing/VITO/Seq_Proj/CIDRnD_DNA_Repair_All_newpipeline/CRAM_CONVERSION_VALIDATION/* 
+for f in $MAIN_DIR/CRAM_CONVERSION_VALIDATION/* 
 do
 	FILE=$(basename $f _cram.txt)
 	grep "^ERROR" $f | awk '{OFS="\t"}{print "'$FILE'",$0}' >> $MAIN_DIR/cram_files_potentially_corrupted.list
