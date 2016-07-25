@@ -71,6 +71,7 @@ $SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
+mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 
 rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
 rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bai"
@@ -81,7 +82,10 @@ $SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T 
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
+mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 }
+
+
 
 if [[ ! $BQSR_FILE ]]
 	then

@@ -42,7 +42,7 @@ BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST(){
 
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$PROJECT_NAME -hold_jid $VALIDATOR_COMPARER_HOLD_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $DIR_TO_PARSE
+	echo qsub -N VALIDATOR_COMPARE_$PROJECT_NAME -hold_jid $VALIDATOR_COMPARER_HOLD_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE
 }
 
 ####Zips and md5s text and csv files####
