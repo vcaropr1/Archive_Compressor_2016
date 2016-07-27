@@ -38,11 +38,9 @@ $BGZIP_EXEC -c $IN_VCF > $IN_VCF.gz && $TABIX_EXEC -h $IN_VCF.gz
 
 
 #######Make an if statement in md5_check to see if vcf file.  If it is then md5sum both the file and tbi....###########
-echo $(zcat $IN_VCF".gz" | md5sum | awk '{print $1}') $IN_VCF".gz" >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
-echo $(md5sum $IN_VCF".gz.tbi") >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
-md5sum $IN_VCF >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
-
-#TODO: MD5sum vcf index to compare in md5_check?
+# echo $(zcat $IN_VCF".gz" | md5sum | awk '{print $1}') $IN_VCF".gz" >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
+# echo $(md5sum $IN_VCF".gz.tbi") >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
+# md5sum $IN_VCF >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
 
 rm -f $IN_VCF".idx"
 

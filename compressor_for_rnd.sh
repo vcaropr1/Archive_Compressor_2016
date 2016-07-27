@@ -43,17 +43,22 @@ CRAM_VALIDATOR(){
 
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$PROJECT_NAME -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE
+	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE
 }
 
 ####Zips and md5s text and csv files####
 ZIP_TEXT_AND_CSV_FILE(){
 	echo qsub -N COMPRESS_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/ZIP_FILE_$BASENAME.log $SCRIPT_REPO/zip_file.sh $FILE $DIR_TO_PARSE
 }
-	
+
+
+BUILD_MD5_CHECK_HOLD_LIST(){
+	MD5_HOLD_LIST=$MD5_HOLD_LIST'VALIDATOR_COMPARE_'$UNIQUE_ID','
+}
+
 ####Compares MD5 between the original file and the zipped file (using zcat) to validate that the file was compressed successfully####
 MD5_CHECK(){
-	echo qsub -N MD5_CHECK_$UNIQUE_ID -hold_jid COMPRESS_$UNIQUE_ID  -j y -o $DIR_TO_PARSE/LOGS/MD5_CHECK$BASENAME.log $SCRIPT_REPO/md5_check.sh $FILE $DIR_TO_PARSE
+	echo qsub -N MD5_CHECK_ENTIRE_PROJECT_$PROJECT_NAME -hold_jid $MD5_HOLD_LIST -j y -o $DIR_TO_PARSE/LOGS/MD5_CHECK.log $SCRIPT_REPO/md5_check.sh $DIR_TO_PARSE
 }
 
 PROJECT_NAME=$(basename $DIR_TO_PARSE)
@@ -74,7 +79,6 @@ UNIQUE_ID=$(echo $BASENAME | sed 's/@/_/g') # If there is an @ in the qsub or ho
 if [[ $FILE == *".vcf" ]]
 then
 	COMPRESS_AND_INDEX_VCF
-	MD5_CHECK
 
 elif [[ $FILE == *".bam" ]]; then
 #	case $FILE in *02_CIDR_RND*)
@@ -82,6 +86,7 @@ elif [[ $FILE == *".bam" ]]; then
 	BAM_VALIDATOR
 	CRAM_VALIDATOR
 	VALIDATOR_COMPARER
+	BUILD_MD5_CHECK_HOLD_LIST
 #	BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST
 #	;;
 #	*00_CIDR_PRODUCTION*)
@@ -94,17 +99,17 @@ elif [[ $FILE == *".bam" ]]; then
 
 elif [[ $FILE == *".txt" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
-	MD5_CHECK	
 
 elif [[ $FILE == *".csv" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
-	MD5_CHECK
-
 else 
 	echo $FILE_NAME not being compressed >> $DIR_TO_PARSE/compression_jobs.list
 
 fi
 done
 
+echo -e SAMPLE,PROCESS,ORIGINAL_BAM_SIZE,CRAM_SIZE,START_TIME,END_TIME >| $DIR_TO_PARSE/cram_compression_times.csv
+
+MD5_CHECK
 
 

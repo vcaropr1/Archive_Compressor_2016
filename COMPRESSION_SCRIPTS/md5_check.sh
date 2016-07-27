@@ -24,14 +24,34 @@
 
 set
 
-FILE=$1
-DIR_TO_PARSE=$2
-ORIGINAL_MD5=$(md5sum $FILE | awk '{print $1}')
-ZIPPED_MD5=$(zcat $FILE".gz" | md5sum | awk '{print $1}')
+DIR_TO_PARSE=$1
 
-if [[ $ORIGINAL_MD5 = $ZIPPED_MD5 ]]; then
-	echo $FILE compressed successfully >> $DIR_TO_PARSE/compression_jobs.list
-	rm -f $FILE
-else
-	echo $FILE did not compress successfully >> $DIR_TO_PARSE/compression_jobs.list
-fi
+MD5_COMPARISON (){
+
+ORIGINAL_MD5=$(md5sum $FILE | awk '{print $1}')
+	ZIPPED_MD5=$(zcat $FILE".gz" | md5sum | awk '{print $1}')
+
+	echo $(zcat $FILE".gz" | md5sum | awk '{print $1}') $FILE".gz" >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
+	echo $(md5sum $FILE | awk '{print $1}') $FILE >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
+
+		if [[ $ORIGINAL_MD5 = $ZIPPED_MD5 ]]; then
+		echo $FILE compressed successfully >> $DIR_TO_PARSE/compression_jobs.list
+ 		rm -f $FILE
+		else
+			echo $FILE did not compress successfully >> $DIR_TO_PARSE/compression_jobs.list
+			mail -s "$FILE Failed compression" vcaropr1@jhmi.edu < $DIR_TO_PARSE/compression_jobs.list
+		fi
+
+}
+
+
+for FILE in $(find $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$')
+do
+	if [[ -e $FILE".gz" ]]
+	then
+		MD5_COMPARISON
+	else
+		gzip -f -c $FILE >| $FILE.gz
+		MD5_COMPARISON 
+	fi
+done

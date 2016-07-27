@@ -73,8 +73,8 @@ $SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
 mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 
-rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
-rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bai"
+# rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
+# rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bai"
 }
 
 REMOVE_TAGS_AND_CRAM_NO_BQSR(){
@@ -87,17 +87,17 @@ mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 
 
 
-if [[ ! $BQSR_FILE ]]
+if [[ -e $BQSR_FILE ]]
 	then
-	REMOVE_TAGS_AND_CRAM_NO_BQSR
-else
 	BIN_QUALITY_SCORES_REMOVE_TAGS_AND_CRAM
+else
+	REMOVE_TAGS_AND_CRAM_NO_BQSR
 fi
 
 CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print $1}')
 
 md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
-md5sum $CRAM_DIR/$SM_TAG".cram.crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 
 END_CRAM=`date '+%s'`
 

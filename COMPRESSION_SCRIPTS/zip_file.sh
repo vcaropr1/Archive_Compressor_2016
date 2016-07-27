@@ -33,8 +33,8 @@ START_ZIP=`date '+%s'`
 
 gzip -f -c $IN_FILE >| $IN_FILE.gz 
 
-echo $(zcat $IN_FILE".gz" | md5sum | awk '{print $1}') $IN_FILE".gz" >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
-echo $(md5sum $IN_FILE | awk '{print $1}') $IN_FILE >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
+# echo $(zcat $IN_FILE".gz" | md5sum | awk '{print $1}') $IN_FILE".gz" >> $DIR_TO_PARSE/MD5_REPORTS/compressed_md5list.list
+# echo $(md5sum $IN_FILE | awk '{print $1}') $IN_FILE >> $DIR_TO_PARSE/MD5_REPORTS/original_md5list.list
 
 END_ZIP=`date '+%s'`
 
