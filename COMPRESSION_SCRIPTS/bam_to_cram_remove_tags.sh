@@ -36,7 +36,7 @@ START_CRAM=`date '+%s'`
 
 mkdir -p $CRAM_DIR
 
-SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
+SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-develop/samtools
 # For further information: http://www.htslib.org/doc/samtools.html
 
 # Use samtools-1.3.1 devel to convert a bam file to a cram file with no error
@@ -51,7 +51,7 @@ CRAM_FILE_SIZE=$(du -ab $SM_TAG".cram" | awk '{print $1}')
 END_CRAM=`date '+%s'`
 
 md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
-md5sum $CRAM_DIR/$SM_TAG".cram.crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 
 echo $IN_BAM,CRAM,$BAM_FILE_SIZE,$CRAM_FILE_SIZE,$START_CRAM,$END_CRAM \
 >> $DIR_TO_PARSE/cram_compression_times.csv

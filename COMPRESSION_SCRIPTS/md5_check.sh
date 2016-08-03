@@ -36,7 +36,7 @@ ORIGINAL_MD5=$(md5sum $FILE | awk '{print $1}')
 
 		if [[ $ORIGINAL_MD5 = $ZIPPED_MD5 ]]; then
 		echo $FILE compressed successfully >> $DIR_TO_PARSE/compression_jobs.list
- 		rm -f $FILE
+ 		rm -rvf $FILE
 		else
 			echo $FILE did not compress successfully >> $DIR_TO_PARSE/compression_jobs.list
 			mail -s "$FILE Failed compression" vcaropr1@jhmi.edu < $DIR_TO_PARSE/compression_jobs.list
@@ -45,7 +45,7 @@ ORIGINAL_MD5=$(md5sum $FILE | awk '{print $1}')
 }
 
 
-for FILE in $(find $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$')
+for FILE in $(find $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$|log$|intervals$' | grep -v MD5_CHECK.log)
 do
 	if [[ -e $FILE".gz" ]]
 	then
@@ -55,3 +55,5 @@ do
 		MD5_COMPARISON 
 	fi
 done
+
+gzip -f $DIR_TO_PARSE/LOGS/MD5_CHECK.log

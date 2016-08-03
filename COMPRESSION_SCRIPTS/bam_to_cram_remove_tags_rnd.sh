@@ -40,7 +40,7 @@ BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
 CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
 GATK_DIR=/isilon/sequencing/CIDRSeqSuiteSoftware/gatk/GATK_3/GenomeAnalysisTK-3.5-0
 JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
-SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
+SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-develop/samtools
 SM_TAG=$(basename $IN_BAM .bam) 
 BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print $1}')
 
