@@ -34,6 +34,7 @@ set
 IN_BAM=$1
 DIR_TO_PARSE=$2
 REF_GENOME=$3
+COUNTER=$4
 
 BAM_DIR=$(dirname $IN_BAM)
 BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
@@ -65,9 +66,9 @@ $JAVA_1_7/java -jar $GATK_DIR/GenomeAnalysisTK.jar \
 -SQQ 40 \
 -EOQ \
 -nct 6 \
--o $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
+-o $DIR_TO_PARSE/TEMP/$SM_TAG"_"$COUNTER"_binned.bam"
 
-$SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
+$SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_"$COUNTER"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"

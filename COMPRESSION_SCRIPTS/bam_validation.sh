@@ -23,6 +23,7 @@ set
 
 IN_BAM=$1
 MAIN_DIR=$2
+COUNTER=$3
 SM_TAG=$(basename $IN_BAM .bam)
 
 JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
@@ -36,7 +37,7 @@ START_BAM_VALIDATION=`date '+%s'`
 $JAVA_1_7/java -jar $PICARD_DIR/picard.jar \
 ValidateSamFile \
 INPUT= $IN_BAM \
-OUTPUT= $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam.txt" \
+OUTPUT= $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER".txt" \
 MODE=SUMMARY \
 
 END_BAM_VALIDATION=`date '+%s'`

@@ -27,6 +27,7 @@ set
 IN_BAM=$1
 MAIN_DIR=$2
 REF_GENOME=$3
+COUNTER=$4
 SM_TAG=$(basename $IN_BAM .bam)
 CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 
@@ -41,7 +42,7 @@ START_CRAM_VALIDATION=`date '+%s'`
 $JAVA_1_7/java -jar $PICARD_DIR/picard.jar \
 ValidateSamFile \
 INPUT= $CRAM_DIR/$SM_TAG".cram" \
-OUTPUT= $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram.txt" \
+OUTPUT= $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" \
 REFERENCE_SEQUENCE= $REF_GENOME \
 MODE=SUMMARY \
 
