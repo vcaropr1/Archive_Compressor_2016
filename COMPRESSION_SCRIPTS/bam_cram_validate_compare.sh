@@ -33,7 +33,8 @@ SM_TAG=$(basename $IN_BAM .bam)
 DATAMASH_EXE=/isilon/sequencing/Kurt/Programs/PATH/datamash
 SAMTOOLS_EXE=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
 
-CRAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER",txt" $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" | grep -v "No errors found")
+# Need to make more explicit... If this grep doesn't find a file it will still pass the check below.  Granted the flagstat must be equal too. 
+CRAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER".txt" $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" | grep -v "No errors found")
 
 # BAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram.txt" $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG".original.bam.txt")
 

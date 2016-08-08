@@ -22,28 +22,28 @@ COMPRESS_AND_INDEX_VCF(){
 ####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION_RND(){
 	#Remove Tags + 5-bin Quality Score (RND Projects)
-	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE $REF_GENOME
+	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE $REF_GENOME $COUNTER
 }
 
 ####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION_PRODUCTION(){
-	#Remove Tags + 5-bin Quality Score (RND Projects)
-	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE $DIR_TO_PARSE $REF_GENOME
+	#Remove Tags
+	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE $DIR_TO_PARSE $REF_GENOME 
 }
 
 ####Uses ValidateSam to report any errors found within the original BAM file####
 BAM_VALIDATOR(){
-	echo qsub -N BAM_VALIDATOR_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_VALIDATOR_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_validation.sh $FILE $DIR_TO_PARSE	
+	echo qsub -N BAM_VALIDATOR_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_VALIDATOR_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_validation.sh $FILE $DIR_TO_PARSE $COUNTER
 }
 
 ####Uses ValidateSam to report any errors found within the cram files####
 CRAM_VALIDATOR(){
-	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE $REF_GENOME
+	echo qsub -N CRAM_VALIDATOR_$UNIQUE_ID -hold_jid BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/CRAM_VALIDATOR_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/cram_validation.sh $FILE $DIR_TO_PARSE $REF_GENOME $COUNTER
 }
 
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE_$COUNTER.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE
+	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE_$COUNTER.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE $COUNTER
 }
 
 ####Zips and md5s text and csv files####
