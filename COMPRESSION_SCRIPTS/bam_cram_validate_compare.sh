@@ -33,33 +33,41 @@ SM_TAG=$(basename $IN_BAM .bam)
 DATAMASH_EXE=/isilon/sequencing/Kurt/Programs/PATH/datamash
 SAMTOOLS_EXE=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
 
-# Need to make more explicit... If this grep doesn't find a file it will still pass the check below.  Granted the flagstat must be equal too. 
-CRAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER".txt" $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" | grep -v "No errors found")
-
-# BAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram.txt" $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG".original.bam.txt")
+# Made this explicit if the validation output files are not found it will fail 
+if [[ -e $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" && -e $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER".txt" ]]
+	then
+		CRAM_ONLY_ERRORS=$(grep -F -x -v -f $MAIN_DIR/BAM_CONVERSION_VALIDATION/$SM_TAG"_bam."$COUNTER".txt" $MAIN_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram."$COUNTER".txt" | grep -v "No errors found")
+	else
+		CRAM_ONLY_ERRORS=$(echo FAILED_CONVERSION)
+fi
 
 ## Create two temp files for the output of flagstat for bam and cram file.  If the two files are the same AND the CRAM_ONLY_ERRORS variable is null will the output verify the conversion was sucessful.  If either of these fail, the error file will show this.  
 
- $SAMTOOLS_EXE flagstat $BAM_DIR/$SM_TAG.bam >| $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out"
- $SAMTOOLS_EXE flagstat $CRAM_DIR/$SM_TAG.cram >| $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out"
+$SAMTOOLS_EXE flagstat $BAM_DIR/$SM_TAG.bam >| $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out"
+$SAMTOOLS_EXE flagstat $CRAM_DIR/$SM_TAG.cram >| $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out"
+
+if [[ ! (-e $MAIN_DIR/cram_conversion_validation.list) ]]
+	then
+	echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $DIR_TO_PARSE/cram_conversion_validation.list
+fi
 
 if [[ -z $(diff $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out" $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out" ) && -z $CRAM_ONLY_ERRORS ]]
-then
- echo $SM_TAG CRAM COMPRESSION WAS COMPLETED SUCCESSFULLY
-echo -e $IN_BAM\\tPASS\\t$CRAM_ONLY_ERRORS | sed -r 's/[[:space:]]+/\t/g' >> $MAIN_DIR/cram_conversion_validation.list
-rm -f $BAM_DIR/$SM_TAG.bam
-rm -f $BAM_DIR/$SM_TAG.bai
-else
- 	echo $SM_TAG CRAM COMPRESSION WAS UNSUCCESSFUL
-	(echo BAM; cat $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out"; echo -e \\nCRAM; cat $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out") >| $MAIN_DIR/TEMP/$SM_TAG".combined."$COUNTER".flagstat.out"
-	echo -e $IN_BAM\\tFAIL\\t$CRAM_ONLY_ERRORS | sed -r 's/[[:space:]]+/\t/g' >> $MAIN_DIR/cram_conversion_validation.list
-	mail -s "$IN_BAM Failed Cram conversion-Cram Flagstat Output" vcaropr1@jhmi.edu < $MAIN_DIR/TEMP/$SM_TAG".combined."$COUNTER".flagstat.out"
+	then
+ 		echo $SM_TAG CRAM COMPRESSION WAS COMPLETED SUCCESSFULLY
+		echo -e $IN_BAM\\tPASS\\t$CRAM_ONLY_ERRORS | sed -r 's/[[:space:]]+/\t/g' >> $MAIN_DIR/cram_conversion_validation.list
+		rm -f $BAM_DIR/$SM_TAG.bam
+		rm -f $BAM_DIR/$SM_TAG.bai
+	else
+ 		echo $SM_TAG CRAM COMPRESSION WAS UNSUCCESSFUL
+		(echo BAM; cat $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out"; echo -e \\nCRAM; cat $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out") >| $MAIN_DIR/TEMP/$SM_TAG".combined."$COUNTER".flagstat.out"
+		echo -e $IN_BAM\\tFAIL\\t$CRAM_ONLY_ERRORS | sed -r 's/[[:space:]]+/\t/g' >> $MAIN_DIR/cram_conversion_validation.list
+# 		mail -s "$IN_BAM Failed Cram conversion-Cram Flagstat Output" vcaropr1@jhmi.edu < $MAIN_DIR/TEMP/$SM_TAG".combined."$COUNTER".flagstat.out"
 fi
 
 if [[ $(find  $BAM_MAIN_DIR/BAM -type f | wc -l) == 0 ]]
 	then
-	rm -rvf $BAM_MAIN_DIR/BAM
-	rm -rvf $MAIN_DIR/TEMP/*
+		rm -rvf $BAM_DIR
+		rm -rvf $MAIN_DIR/TEMP/*
 fi
 
  echo $CRAM_DIR/$SM_TAG".cram",BAM_CRAM_VALIDATION_COMPARE,$START_CRAM_VALIDATION,$END_CRAM_VALIDATION \

@@ -68,10 +68,11 @@ mkdir -p $DIR_TO_PARSE/MD5_REPORTS/
 mkdir -p $DIR_TO_PARSE/LOGS
 mkdir -p $DIR_TO_PARSE/TEMP
 
-echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $DIR_TO_PARSE/cram_conversion_validation.list
+# Moved to bam_cram_validate_compare.sh and used an if statement to create only once.  Need to test!	
+# echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $DIR_TO_PARSE/cram_conversion_validation.list
 
 # Pass variable (vcf/txt/cram) file path to function and call $FILE within function#
-for FILE in $(find $DIR_TO_PARSE | egrep 'vcf$|csv$|txt$|bam$|intervals$')
+for FILE in $(find $DIR_TO_PARSE -type f | egrep 'vcf$|csv$|txt$|bam$|intervals$')
 do
 BASENAME=$(basename $FILE)
 UNIQUE_ID=$(echo $BASENAME | sed 's/@/_/g') # If there is an @ in the qsub or holdId name it breaks
@@ -81,21 +82,21 @@ then
 	COMPRESS_AND_INDEX_VCF
 
 elif [[ $FILE == *".bam" ]]; then
-#	case $FILE in *02_CIDR_RND*)
+	case $FILE in *02_CIDR_RND*)
 	BAM_TO_CRAM_CONVERSION_RND
 	BAM_VALIDATOR
 	CRAM_VALIDATOR
 	VALIDATOR_COMPARER
 	BUILD_MD5_CHECK_HOLD_LIST
-#	BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST
-#	;;
-#	*00_CIDR_PRODUCTION*)
-#	BAM_TO_CRAM_CONVERSION_PRODUCTION
-#	BAM_VALIDATOR
-#	CRAM_VALIDATOR
-#	BUILD_VALIDATOR_COMPARER_HOLD_ID_JOB_LIST
-#	;;
-#	esac
+	;;
+	*03_RODEN_EMERGE2*)
+	BAM_TO_CRAM_CONVERSION_PRODUCTION
+	BAM_VALIDATOR
+	CRAM_VALIDATOR
+	VALIDATOR_COMPARER
+	BUILD_MD5_CHECK_HOLD_LIST
+	;;
+	esac
 
 elif [[ $FILE == *".txt" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
@@ -107,12 +108,10 @@ elif [[ $FILE == *".intervals" ]]; then
 	ZIP_TEXT_AND_CSV_FILE
 
 else 
-	echo $FILE not being compressed >> $DIR_TO_PARSE/compression_jobs.list
+	echo $FILE not being compressed
 
 fi
 done
-
-echo -e SAMPLE,PROCESS,ORIGINAL_BAM_SIZE,CRAM_SIZE,START_TIME,END_TIME >| $DIR_TO_PARSE/cram_compression_times.csv
 
 MD5_CHECK
 

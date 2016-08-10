@@ -38,12 +38,12 @@ COUNTER=$4
 
 BAM_DIR=$(dirname $IN_BAM)
 BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
-CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
+CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 GATK_DIR=/isilon/sequencing/CIDRSeqSuiteSoftware/gatk/GATK_3/GenomeAnalysisTK-3.5-0
 JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
 SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-develop/samtools
 SM_TAG=$(basename $IN_BAM .bam) 
-BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print $1}')
+BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print ($1/1024/1024/1024)}')
 
 #BQSR path and files seem to very slightly... Also some files have been ran mutliple times.  This pulls the directory above the BAM folder to search from and sort the output in directory structure to take the top one
 BQSR_FILE=$(find $BAM_MAIN_DIR -depth -name $SM_TAG".bqsr" -or -name  ${SM_TAG}*P*.bqsr | head -n1)
@@ -86,16 +86,22 @@ $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
 mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 }
 
+#############################################END OF FUNCTIONS################################################
+
+if [[ ! -e $DIR_TO_PARSE/cram_compression_times.csv ]]
+	then
+		echo -e SAMPLE,PROCESS,ORIGINAL_BAM_SIZE,CRAM_SIZE,START_TIME,END_TIME >| $DIR_TO_PARSE/cram_compression_times.csv
+fi
 
 
 if [[ -e $BQSR_FILE ]]
 	then
-	BIN_QUALITY_SCORES_REMOVE_TAGS_AND_CRAM
-else
-	REMOVE_TAGS_AND_CRAM_NO_BQSR
+		BIN_QUALITY_SCORES_REMOVE_TAGS_AND_CRAM
+	else
+		REMOVE_TAGS_AND_CRAM_NO_BQSR
 fi
 
-CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print $1}')
+CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print ($1/1024/1024/1024)}')
 
 md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list

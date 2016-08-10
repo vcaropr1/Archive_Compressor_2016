@@ -28,9 +28,10 @@ IN_BAM=$1
 DIR_TO_PARSE=$2
 REF_GENOME=$3
 BAM_DIR=$(dirname $IN_BAM)
-CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
+CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 SM_TAG=$(basename $IN_BAM .bam) 
-BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print $1}')
+BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print ($1/1024/1024/1024)}')
+set
 
 START_CRAM=`date '+%s'`
 
@@ -46,7 +47,7 @@ SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-develop/samtool
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
 mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 
-CRAM_FILE_SIZE=$(du -ab $SM_TAG".cram" | awk '{print $1}')
+CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print ($1/1024/1024/1024)}')
 
 END_CRAM=`date '+%s'`
 
