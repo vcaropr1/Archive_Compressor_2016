@@ -43,7 +43,7 @@ CRAM_VALIDATOR(){
 
 ####Parses through all CRAM_VALIDATOR files to determine if any errors/potentially corrupted cram files were created and creates a list in the top directory
 VALIDATOR_COMPARER(){
-	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE_$COUNTER.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE $COUNTER
+	echo qsub -N VALIDATOR_COMPARE_$UNIQUE_ID -hold_jid "BAM_VALIDATOR_"$UNIQUE_ID",CRAM_VALIDATOR_"$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_CRAM_VALIDATE_COMPARE_$COUNTER.log $SCRIPT_REPO/bam_cram_validate_compare.sh $FILE $DIR_TO_PARSE $COUNTER
 }
 
 ####Zips and md5s text and csv files####
@@ -89,7 +89,7 @@ elif [[ $FILE == *".bam" ]]; then
 	VALIDATOR_COMPARER
 	BUILD_MD5_CHECK_HOLD_LIST
 	;;
-	*03_RODEN_EMERGE2*)
+	*)
 	BAM_TO_CRAM_CONVERSION_PRODUCTION
 	BAM_VALIDATOR
 	CRAM_VALIDATOR
