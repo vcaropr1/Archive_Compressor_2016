@@ -41,7 +41,7 @@ BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
 CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 GATK_DIR=/isilon/sequencing/CIDRSeqSuiteSoftware/gatk/GATK_3/GenomeAnalysisTK-3.5-0
 JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
-SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-develop/samtools
+SAMTOOLS_EXEC=/isilon/sequencing/Kurt/Programs/samtools/samtools-1.4/samtools
 SM_TAG=$(basename $IN_BAM .bam) 
 BAM_FILE_SIZE=$(du -ab $IN_BAM | awk '{print ($1/1024/1024/1024)}')
 
@@ -83,7 +83,7 @@ $SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T 
 
 # Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
-mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
+cp $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 }
 
 #############################################END OF FUNCTIONS################################################
@@ -103,8 +103,8 @@ fi
 
 CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print ($1/1024/1024/1024)}')
 
-md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
-md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+# md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+# md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 
 END_CRAM=`date '+%s'`
 

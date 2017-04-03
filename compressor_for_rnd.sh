@@ -2,7 +2,7 @@
 
 module load sge
 
-DIR_TO_PARSE=$1
+DIR_TO_PARSE=$1 #Directory of the Project to compress
 REF_GENOME=$2
 
 SCRIPT_REPO=/isilon/sequencing/VITO/GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
@@ -19,13 +19,13 @@ COMPRESS_AND_INDEX_VCF(){
 	echo qsub -N COMPRESS_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/COMPRESS_AND_INDEX_VCF_$BASENAME.log $SCRIPT_REPO/compress_and_tabix_vcf.sh $FILE $DIR_TO_PARSE
 }
 
-####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
+####Uses samtools-1.4 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION_RND(){
 	#Remove Tags + 5-bin Quality Score (RND Projects)
 	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags_rnd.sh $FILE $DIR_TO_PARSE $REF_GENOME $COUNTER
 }
 
-####Uses samtools-1.3.1 to convert bam to cram and index and remove excess tags####  
+####Uses samtools-1.4 to convert bam to cram and index and remove excess tags####  
 BAM_TO_CRAM_CONVERSION_PRODUCTION(){
 	#Remove Tags
 	 echo qsub -N BAM_TO_CRAM_CONVERSION_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/BAM_TO_CRAM_$BASENAME"_"$COUNTER.log $SCRIPT_REPO/bam_to_cram_remove_tags.sh $FILE $DIR_TO_PARSE $REF_GENOME 
@@ -48,7 +48,7 @@ VALIDATOR_COMPARER(){
 
 ####Zips and md5s text and csv files####
 ZIP_TEXT_AND_CSV_FILE(){
-	echo qsub -N COMPRESS_$UNIQUE_ID -j y -o $DIR_TO_PARSE/LOGS/ZIP_FILE_$BASENAME.log $SCRIPT_REPO/zip_file.sh $FILE $DIR_TO_PARSE
+	echo qsub -N COMPRESS_\'$UNIQUE_ID\' -j y -o $DIR_TO_PARSE/LOGS/ZIP_FILE_\'$BASENAME\'.log $SCRIPT_REPO/zip_file.sh \'$FILE\' $DIR_TO_PARSE
 }
 
 
@@ -61,8 +61,13 @@ MD5_CHECK(){
 	echo qsub -N MD5_CHECK_ENTIRE_PROJECT_$PROJECT_NAME -hold_jid $MD5_HOLD_LIST -j y -o $DIR_TO_PARSE/LOGS/MD5_CHECK.log $SCRIPT_REPO/md5_check.sh $DIR_TO_PARSE
 }
 
+MD5_CHECK_NO_HOLD_ID(){
+	echo qsub -N MD5_CHECK_ENTIRE_PROJECT_$PROJECT_NAME -j y -o $DIR_TO_PARSE/LOGS/MD5_CHECK.log $SCRIPT_REPO/md5_check.sh $DIR_TO_PARSE
+}
+
 PROJECT_NAME=$(basename $DIR_TO_PARSE)
 COUNTER=0
+BAM_COUNTER=0
 
 mkdir -p $DIR_TO_PARSE/MD5_REPORTS/
 mkdir -p $DIR_TO_PARSE/LOGS
@@ -72,7 +77,7 @@ mkdir -p $DIR_TO_PARSE/TEMP
 # echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $DIR_TO_PARSE/cram_conversion_validation.list
 
 # Pass variable (vcf/txt/cram) file path to function and call $FILE within function#
-for FILE in $(find $DIR_TO_PARSE -type f | egrep 'vcf$|csv$|txt$|bam$|intervals$')
+for FILE in $(find $DIR_TO_PARSE -type f | egrep 'vcf$|csv$|txt$|bam$|intervals$' | egrep -v 'HC.bam$|[[:space:]]')
 do
 BASENAME=$(basename $FILE)
 UNIQUE_ID=$(echo $BASENAME | sed 's/@/_/g') # If there is an @ in the qsub or holdId name it breaks
@@ -82,6 +87,7 @@ then
 	COMPRESS_AND_INDEX_VCF
 
 elif [[ $FILE == *".bam" ]]; then
+	let BAM_COUNTER=BAM_COUNTER+1
 	case $FILE in *02_CIDR_RND*)
 	BAM_TO_CRAM_CONVERSION_RND
 	BAM_VALIDATOR
@@ -113,6 +119,11 @@ else
 fi
 done
 
-MD5_CHECK
+if [[ $BAM_COUNTER == 0 ]]
+	then
+	MD5_CHECK_NO_HOLD_ID
+else
+	MD5_CHECK
+fi
 
 

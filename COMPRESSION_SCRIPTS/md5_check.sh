@@ -48,27 +48,26 @@ ZIPPED_MD5=$(zcat "$FILE".gz | md5sum | awk '{print $1}')
 
 }
 
-FILES=$(find $DIR_TO_PARSE -type f| egrep 'vcf$|csv$|txt$|log$|intervals$|cram$' | grep -v MD5_CHECK.log)
+FILES=$(find $DIR_TO_PARSE -type f | egrep 'vcf$|csv$|txt$|log$|intervals$|cram$' | grep -v MD5_CHECK.log)
 for FILE in $FILES
 do
 	if [[ -e "$FILE".gz ]]
 		then
-		echo $FILE
-#		echo "$FILE" compressed
-#			MD5_COMPARISON
+		echo "$FILE" compressed
+			MD5_COMPARISON
 		elif [[ "$FILE" == *.cram ]]
 			then
 			SM_TAG=$(basename "$FILE" .cram)
 			CRAM_DIR=$(dirname "$FILE")
 			md5sum "$FILE" | awk '{print $1,"'$FILE'"}' >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
-			md5sum $CRAM_DIR/$SM_TAG".crai" | awk '{print $1,"'$FILE'"}' >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
+			md5sum $CRAM_DIR/$SM_TAG".crai" | awk '{print $1,"'$CRAM_DIR'""/""'$SM_TAG'"".crai"}' >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 		else
 			echo $FILE
-#			gzip -f -c "$FILE" >| "$FILE".gz
-#			MD5_COMPARISON 
+			gzip -f -c "$FILE" >| "$FILE".gz
+			MD5_COMPARISON
 	fi
 done
 
-# gzip -f $DIR_TO_PARSE/LOGS/MD5_CHECK.log
+ gzip -f $DIR_TO_PARSE/LOGS/MD5_CHECK.log
 
 IFS=$SAVEIFS

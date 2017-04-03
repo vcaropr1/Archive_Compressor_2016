@@ -33,7 +33,7 @@ START_CRAM=`date '+%s'`
 
 mkdir -p $CRAM_DIR
 
-SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
+SAMTOOLS_EXEC=/isilon/sequencing/Kurt/Programs/samtools/samtools-1.4/samtools
 # For further information: http://www.htslib.org/doc/samtools.html
 
 ##CMD FOR FOROUD LANDERS ONLY

@@ -28,7 +28,7 @@ COUNTER=$3
 
 BAM_DIR=$(dirname $IN_BAM)
 BAM_MAIN_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')
-CRAM_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/CRAM
+CRAM_DIR=$(echo $IN_BAM | sed -r 's/BAM.*/CRAM/g')
 SM_TAG=$(basename $IN_BAM .bam) 
 DATAMASH_EXE=/isilon/sequencing/Kurt/Programs/PATH/datamash
 SAMTOOLS_EXE=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
@@ -48,7 +48,7 @@ $SAMTOOLS_EXE flagstat $CRAM_DIR/$SM_TAG.cram >| $MAIN_DIR/TEMP/$SM_TAG".cram."$
 
 if [[ ! -e $MAIN_DIR/cram_conversion_validation.list ]]
 	then
-	echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $DIR_TO_PARSE/cram_conversion_validation.list
+	echo -e SAMPLE\\tCRAM_CONVERSION_SUCCESS\\tCRAM_ONLY_ERRORS\\tNUMBER_OF_CRAM_ONLY_ERRORS >| $MAIN_DIR/cram_conversion_validation.list
 fi
 
 if [[ -z $(diff $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out" $MAIN_DIR/TEMP/$SM_TAG".cram."$COUNTER".flagstat.out" ) && -z $CRAM_ONLY_ERRORS ]]

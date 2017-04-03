@@ -30,12 +30,13 @@ TEMP_DIR=$(echo $BAM_DIR | sed -r 's/BAM.*//g')/TEMP
 REF_GENOME=/isilon/sequencing/GATK_resource_bundle/bwa_mem_0.7.5a_ref/human_g1k_v37_decoy.fasta # Reference genome used for creating BAM file. Needs to be indexed with samtools faidx (would have ref.fasta.fai companion file)
 PICARD_DIR="/isilon/sequencing/VITO/Programs/picard/picard-tools-1.141/"
 SM_TAG=$(basename $IN_BAM .bam) 
+JAVA_1_7=/isilon/sequencing/Kurt/Programs/Java/jdk1.7.0_25/bin
 
 mkdir -p $TEMP_DIR/CRAM_CONVERSION_VALIDATION/
 
 ###convert cram back to bam to validate it can be made back to a bam again with no issues###
 
-SAMTOOLS_EXEC=/isilon/sequencing/VITO/Programs/samtools/samtools-1.3.1/samtools
+SAMTOOLS_EXEC=/isilon/sequencing/Kurt/Programs/samtools/samtools-1.4/samtools
 # For further information: http://www.htslib.org/doc/samtools.html
 
 # Use samtools-1.3.1 devel to convert a cram file to a bam file again with no error
@@ -45,7 +46,7 @@ $SAMTOOLS_EXEC view -b $CRAM_DIR/$SM_TAG".cram" -o $TEMP_DIR/$SM_TAG".bam" -T $R
 $SAMTOOLS_EXEC index $TEMP_DIR/$SM_TAG".bam"
 
 
-java -jar $PICARD_DIR/picard.jar \
+$JAVA_1_7 -jar $PICARD_DIR/picard.jar \
 ValidateSamFile \
 INPUT= $TEMP_DIR/$SM_TAG".bam" \
 OUTPUT= $TEMP_DIR/CRAM_CONVERSION_VALIDATION/$SM_TAG"_cram_to_bam" \
