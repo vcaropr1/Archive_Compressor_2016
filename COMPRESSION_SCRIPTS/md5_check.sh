@@ -43,7 +43,6 @@ ZIPPED_MD5=$(zcat "$FILE".gz | md5sum | awk '{print $1}')
  				rm -rvf "$FILE"
 			else
 				echo "$FILE" did not compress successfully >> $DIR_TO_PARSE/compression_jobs.list
-# 				mail -s "$FILE Failed compression" vcaropr1@jhmi.edu < $DIR_TO_PARSE/compression_jobs.list
 		fi
 
 }

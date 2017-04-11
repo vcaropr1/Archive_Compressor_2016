@@ -5,7 +5,7 @@ module load sge
 DIR_TO_PARSE=$1 #Directory of the Project to compress
 REF_GENOME=$2
 
-SCRIPT_REPO=/isilon/sequencing/VITO/GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
+SCRIPT_REPO=/isilon/sequencing/VITO/NEW_GIT_REPO/Archive_Compressor_2016/COMPRESSION_SCRIPTS
 DEFAULT_REF_GENOME=/isilon/sequencing/GATK_resource_bundle/1.5/b37/human_g1k_v37_decoy.fasta
 
 if [[ ! $REF_GENOME ]]
@@ -81,13 +81,13 @@ for FILE in $(find $DIR_TO_PARSE -type f | egrep 'vcf$|csv$|txt$|bam$|intervals$
 do
 BASENAME=$(basename $FILE)
 UNIQUE_ID=$(echo $BASENAME | sed 's/@/_/g') # If there is an @ in the qsub or holdId name it breaks
-let COUNTER=COUNTER+1
+let COUNTER=COUNTER+1 # counter is used for some log or output names if there are multiple copies of a sample file within the directory as to not overwrite outputs
 if [[ $FILE == *".vcf" ]]
 then
 	COMPRESS_AND_INDEX_VCF
 
 elif [[ $FILE == *".bam" ]]; then
-	let BAM_COUNTER=BAM_COUNTER+1
+	let BAM_COUNTER=BAM_COUNTER+1 # number will match the counter number used for logs and output files like bam/cram validation
 	case $FILE in *02_CIDR_RND*)
 	BAM_TO_CRAM_CONVERSION_RND
 	BAM_VALIDATOR

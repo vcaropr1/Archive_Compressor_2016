@@ -64,7 +64,7 @@ if [[ -z $(diff $MAIN_DIR/TEMP/$SM_TAG".bam."$COUNTER".flagstat.out" $MAIN_DIR/T
 # 		mail -s "$IN_BAM Failed Cram conversion-Cram Flagstat Output" vcaropr1@jhmi.edu < $MAIN_DIR/TEMP/$SM_TAG".combined."$COUNTER".flagstat.out"
 fi
 
-# NEED TO TEST THIS...... Remove own directory once it hits zero, but if it's in the AGGREGATE folder.... Only removes that one and not the complete BAM
+# Remove own directory once it hits zero, but if it's in the AGGREGATE folder.... Only removes that one and not the complete BAM
 if [[ $(find $BAM_DIR -type f | wc -l) == 0 ]]
 	then
 		rm -rvf $BAM_DIR
@@ -73,7 +73,6 @@ fi
 if [[ -e $MAIN_DIR/BAM && $(find $MAIN_DIR/BAM -type f | wc -l) == 0 ]]
 	then
 		rm -rvf $MAIN_DIR/BAM
-		rm -rvf $MAIN_DIR/TEMP/*
 fi
 
 

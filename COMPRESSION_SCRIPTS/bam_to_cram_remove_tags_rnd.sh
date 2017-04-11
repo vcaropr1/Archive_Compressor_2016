@@ -19,12 +19,6 @@
 # tell sge to output both stderr and stdout to the same file
 #$ -j y
 
-# TEST TO SEE IF EMAIL IS SENT IF JOB IS SUSPENDED OR ABORTED
-#$ -m a
-
-# TEST TO SEE IF EMAIL COMES TO ME
-#$ -M vcaropr1@cidr.jhmi.edu
-
 # export all variables, useful to find out what compute node the program was executed on
 # redirecting stderr/stdout to file as a log.
 
@@ -70,18 +64,15 @@ $JAVA_1_7/java -jar $GATK_DIR/GenomeAnalysisTK.jar \
 
 $SAMTOOLS_EXEC view -C $DIR_TO_PARSE/TEMP/$SM_TAG"_"$COUNTER"_binned.bam" -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
 
-# Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
+# Use samtools-1.4 to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
-mv $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
-
-# rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bam"
-# rm -f  $DIR_TO_PARSE/TEMP/$SM_TAG"_binned.bai"
+cp $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 }
 
 REMOVE_TAGS_AND_CRAM_NO_BQSR(){
 $SAMTOOLS_EXEC view -C $IN_BAM -x BI -x BD -x BQ -o $CRAM_DIR/$SM_TAG".cram" -T $REF_GENOME -@ 4
 
-# Use samtools-1.3.1 devel to create an index file for the recently created cram file with the extension .crai
+# Use samtools-1.4 to create an index file for the recently created cram file with the extension .crai
 $SAMTOOLS_EXEC index $CRAM_DIR/$SM_TAG".cram"
 cp $CRAM_DIR/$SM_TAG".cram.crai" $CRAM_DIR/$SM_TAG".crai"
 }
@@ -102,9 +93,6 @@ if [[ -e $BQSR_FILE ]]
 fi
 
 CRAM_FILE_SIZE=$(du -ab $CRAM_DIR/$SM_TAG".cram" | awk '{print ($1/1024/1024/1024)}')
-
-# md5sum $CRAM_DIR/$SM_TAG".cram" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
-# md5sum $CRAM_DIR/$SM_TAG".crai" >> $DIR_TO_PARSE/MD5_REPORTS/cram_md5.list
 
 END_CRAM=`date '+%s'`
 

@@ -4,7 +4,6 @@
 # tell sge to execute in bash
 #$ -S /bin/bash
 
-
 # tell sge to submit any of these queue when available
 #$ -q rnd.q,prod.q,test.q
 
@@ -39,10 +38,10 @@ mkdir -p $TEMP_DIR/CRAM_CONVERSION_VALIDATION/
 SAMTOOLS_EXEC=/isilon/sequencing/Kurt/Programs/samtools/samtools-1.4/samtools
 # For further information: http://www.htslib.org/doc/samtools.html
 
-# Use samtools-1.3.1 devel to convert a cram file to a bam file again with no error
+# Use samtools-1.4 to convert a cram file to a bam file again with no error
 $SAMTOOLS_EXEC view -b $CRAM_DIR/$SM_TAG".cram" -o $TEMP_DIR/$SM_TAG".bam" -T $REF_GENOME
 
-# Use samtools-1.3.1 devel to create an index file for the recently created bam file with the extension .crai
+# Use samtools-1.4 to create an index file for the recently created bam file with the extension .crai
 $SAMTOOLS_EXEC index $TEMP_DIR/$SM_TAG".bam"
 
 
